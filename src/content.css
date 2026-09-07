@@ -1,0 +1,21 @@
+/* Belt-and-braces positioning for the badge host element. The real styling
+   lives inside the closed Shadow DOM created by content.js; these rules only
+   make sure a page stylesheet cannot displace or hide the host itself. */
+#site-ip-badge-host {
+  all: initial !important;
+  position: fixed !important;
+  bottom: 0 !important;
+  top: auto !important;
+  z-index: 2147483647 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  line-height: 0 !important;
+  pointer-events: auto !important;
+  display: block !important;
+  width: auto !important;
+  height: auto !important;
+  max-width: 100vw !important;
+  transform: none !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}

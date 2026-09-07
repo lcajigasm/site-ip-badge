@@ -1,0 +1,14 @@
+{
+  "name": "site-ip-badge-tests",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Playwright harness that loads src/ unpacked into Chrome for Testing and checks the badge end to end.",
+  "scripts": {
+    "postinstall": "playwright install chromium",
+    "test": "node run.js",
+    "screenshots": "node screenshots.js"
+  },
+  "devDependencies": {
+    "playwright": "^1.63.0"
+  }
+}

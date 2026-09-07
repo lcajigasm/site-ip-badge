@@ -1,0 +1,21 @@
+body {
+  margin: 0;
+  padding: 16px 20px;
+  min-width: 320px;
+  max-width: 480px;
+  font: 13px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  color: #222;
+  background: #fff;
+}
+h1 { font-size: 15px; margin: 0 0 14px; }
+.row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 10px 0; }
+.row.check { justify-content: flex-start; align-items: flex-start; }
+.row.check input { margin-top: 3px; }
+select, input[type="number"] { font: inherit; padding: 3px 6px; }
+input[type="number"] { width: 64px; }
+.hint { color: #666; font-size: 12px; margin: 14px 0 0; }
+.saved { color: #2e7d32; font-size: 12px; margin: 8px 0 0; }
+@media (prefers-color-scheme: dark) {
+  body { color: #eee; background: #202124; }
+  .hint { color: #aaa; }
+}

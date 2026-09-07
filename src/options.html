@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Site IP Badge</title>
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <h1 data-i18n="optionsTitle">Site IP Badge</h1>
+
+  <label class="row">
+    <span data-i18n="optPosition">Corner</span>
+    <select id="position">
+      <option value="right" data-i18n="optPositionRight">Bottom right</option>
+      <option value="left" data-i18n="optPositionLeft">Bottom left</option>
+    </select>
+  </label>
+
+  <label class="row">
+    <span data-i18n="optFontSize">Font size (px)</span>
+    <input id="fontSize" type="number" min="8" max="32" step="1">
+  </label>
+
+  <label class="row check">
+    <input id="dnsFallback" type="checkbox">
+    <span data-i18n="optDnsFallback">If the connection IP is unknown, resolve the host via DNS (dns.google)</span>
+  </label>
+
+  <p class="hint" data-i18n="optHint">Hover the badge to move it to the other corner. Click copies the IP. Double click hides it until the page is reloaded.</p>
+  <p class="saved" id="saved" data-i18n="optSaved" hidden>Saved</p>
+
+  <script src="options.js"></script>
+</body>
+</html>

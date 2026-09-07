@@ -1,0 +1,6 @@
+dist/
+node_modules/
+test/.profile/
+test/out/
+.DS_Store
+RELEASE_NOTES.md
