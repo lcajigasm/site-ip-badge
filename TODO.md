@@ -65,7 +65,8 @@ Decisiones:
 ## 4. Publicación
 
 - [x] Repositorio público y release v1.0.0 con el zip e instrucciones de instalación: https://github.com/lcajigasm/site-ip-badge/releases/tag/v1.0.0
-- [ ] Seguir `PUBLISH.md`. Paquete listo en `dist/site-ip-badge-1.0.0.zip`; textos, justificación de permisos y capturas en `docs/store-listing.md`, `docs/screenshots/`, `docs/store/`. Falta: cuenta de desarrollador (tasa 5 USD, 2FA), subir y enviar a revisión.
+- [x] Kit de envío generado con `scripts/store-kit.py` → `dist/store-submission-1.1.0.zip` (paquete, icono, capturas, promo tiles, `LISTING.txt` campo a campo).
+- [ ] Seguir `PUBLISH.md`. Paquete listo en `dist/site-ip-badge-1.1.0.zip`; textos, justificación de permisos y capturas en `docs/store-listing.md`, `docs/screenshots/`, `docs/store/`. Falta: cuenta de desarrollador (tasa 5 USD, 2FA), subir y enviar a revisión.
 - [ ] Tras publicar: escribir reseña/aviso en la ficha de la extensión original si hay canal de contacto (`websiteip865@gmail.com`) para redirigir usuarios; opcional.
 
 ---

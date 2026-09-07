@@ -115,6 +115,7 @@ src/                 the extension (load this folder unpacked)
   _locales/en, es
   icons/
 scripts/zip.sh       builds dist/site-ip-badge-<version>.zip (manifest.json at the zip root)
+scripts/store-kit.py builds dist/store-submission-<version>/ with everything the Web Store form asks for
 test/                Playwright end-to-end suite (see below)
 docs/
   diagnosis.md       why the original extension broke (Spanish)
@@ -164,6 +165,14 @@ Requires `jq` and `zip`.
 ### Publishing to the Chrome Web Store
 
 Follow [PUBLISH.md](PUBLISH.md). The listing text, single-purpose statement and permission justifications are ready in [docs/store-listing.md](docs/store-listing.md).
+
+```sh
+scripts/zip.sh                 # the package
+cd test && npm run screenshots # 1280x800 captures (optional, already in docs/)
+python3 scripts/store-kit.py   # dist/store-submission-<version>/ + .zip
+```
+
+The submission kit contains everything the Developer Dashboard asks for: the package zip, the 128×128 store icon, the screenshots, small and marquee promo tiles, and `LISTING.txt` with every form field ready to paste.
 
 ## Browser support
 
