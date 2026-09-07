@@ -52,6 +52,7 @@ async function badgeInfo(page) {
     title: b.title,
     side: b.getRootNode().host.style.left === 'auto' ? 'right' : 'left',
     fontSize: getComputedStyle(b).fontSize,
+    details: b.querySelector('.details') ? b.querySelector('.details').textContent : null,
   }));
 }
 async function badgeCenter(page) {
@@ -77,6 +78,10 @@ function startLocalServer() {
           <iframe src="https://www.wikipedia.org/" width="900" height="500"></iframe>`);
       } else if (req.url.startsWith('/redirect')) {
         res.writeHead(301, { Location: 'https://example.com/' }); res.end();
+      } else if (req.url.startsWith('/cf')) {
+        res.setHeader('Server', 'cloudflare');
+        res.setHeader('CF-RAY', '8d1234567890abcd-MAD');
+        res.end('<!doctype html><title>cf</title><p>pretend cloudflare</p>');
       } else if (req.url.startsWith('/csp')) {
         res.setHeader('Content-Security-Policy', "default-src 'none'; style-src 'none'; script-src 'none'; img-src 'none'");
         res.end('<!doctype html><title>strict csp</title><p>Strict CSP page</p>');
@@ -292,6 +297,7 @@ function startLocalServer() {
     assert(/Corner|Esquina/.test(text), 'options text: ' + text.slice(0, 80));
     const val = await p.$eval('#dnsFallback', (e) => e.checked);
     assert(val === true, 'dnsFallback default should be on');
+    assert(await p.$('#disabledHosts') && await p.$('#showDetails'), 'new options missing');
     await p.close();
     return 'ok';
   });
@@ -349,6 +355,113 @@ function startLocalServer() {
     const b = await waitBadge(page);
     assert(b.ip === '127.0.0.1' && !b.dns, JSON.stringify(b));
     return b.ip;
+  });
+
+  // 10b. Provider / protocol details.
+  await check('Provider + protocol details from response headers (local Cloudflare-like)', async () => {
+    await page.goto(local('/cf'));
+    const b = await waitBadge(page);
+    assert(b.details && b.details.includes('Cloudflare'), 'details: ' + b.details);
+    assert(b.details.includes('http/1.1'), 'protocol missing: ' + b.details);
+    return b.details;
+  });
+  await check('Provider detected on github.com', async () => {
+    await page.goto('https://github.com/');
+    const b = await waitBadge(page);
+    assert(b.details && /GitHub|Fastly/.test(b.details), 'details: ' + b.details);
+    return b.details;
+  });
+  await check('detectProvider() rules', async () => {
+    const r = await sw.evaluate(() => [
+      detectProvider([{ name: 'X-Amz-Cf-Id', value: 'abc' }]).provider,
+      detectProvider([{ name: 'Via', value: '1.1 varnish' }, { name: 'X-Served-By', value: 'cache-mad22' }]).provider,
+      detectProvider([{ name: 'Server', value: 'nginx/1.25' }]).provider,
+      detectProvider([{ name: 'Server', value: 'nginx/1.25' }]).server,
+      detectProvider([{ name: 'x-vercel-id', value: 'cdg1::abc' }]).provider,
+    ]);
+    assert(r[0] === 'CloudFront' && r[1] === 'Fastly' && r[2] === null && r[3] === 'nginx/1.25' && r[4] === 'Vercel', JSON.stringify(r));
+    return r.filter(Boolean).join(', ');
+  });
+  await check('showDetails=false hides the details span', async () => {
+    await sw.evaluate(() => chrome.storage.sync.set({ showDetails: false }));
+    await page.goto(local('/cf'));
+    const b = await waitBadge(page);
+    await sw.evaluate(() => chrome.storage.sync.set({ showDetails: true }));
+    assert(b.details === null, 'details still shown: ' + b.details);
+    return 'hidden';
+  });
+
+  // 10c. Reverse DNS.
+  await check('reverseDns() resolves PTR via dns.google', async () => {
+    const r = await sw.evaluate(async () => [await reverseDns('8.8.8.8'), reverseName('2001:4860:4860::8888'), reverseName('1.2.3')]);
+    assert(r[0] === 'dns.google', 'PTR 8.8.8.8 -> ' + r[0]);
+    assert(r[1] === '8.8.8.8.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.6.8.4.0.6.8.4.1.0.0.2.ip6.arpa', 'ipv6 name ' + r[1]);
+    assert(r[2] === null, 'bad ipv4 should be null');
+    return r[0];
+  });
+
+  // 10d. Per-site disable list.
+  await check('disabledHosts hides the badge (with subdomains) and reacts live', async () => {
+    await page.goto('https://example.com/');
+    await waitBadge(page);
+    await sw.evaluate(() => chrome.storage.sync.set({ disabledHosts: ['example.com'] }));
+    await sleep(400);
+    assert(!(await page.$(HOST_SEL)), 'badge not removed live after disabling');
+    await page.goto('https://www.example.com/');
+    await sleep(1200);
+    assert(!(await page.$(HOST_SEL)), 'badge shown on subdomain of a disabled host');
+    await sw.evaluate(() => chrome.storage.sync.set({ disabledHosts: [] }));
+    await sleep(400);
+    const b = await waitBadge(page);
+    return 'hidden live, hidden on www., back when re-enabled: ' + b.ip;
+  });
+
+  // 10e. Popup.
+  await check('Popup shows host, IP, provider, protocol and toggles hide-on-site', async () => {
+    await page.goto(local('/cf'));
+    await waitBadge(page);
+    const tabId = await sw.evaluate(async () => (await chrome.tabs.query({}))
+      .find((t) => t.url && t.url.includes('/cf')).id);
+    const pop = await ctx.newPage();
+    await pop.goto(`chrome-extension://${extId}/popup.html?tab=${tabId}`);
+    await pop.waitForSelector('#main:not([hidden])', { timeout: 5000 });
+    await sleep(300);
+    const read = () => pop.evaluate(() => ({
+      host: document.getElementById('host').textContent,
+      ip: document.getElementById('ip').textContent,
+      provider: document.getElementById('provider').hidden ? null : document.getElementById('provider').textContent,
+      protocol: document.getElementById('protocol').hidden ? null : document.getElementById('protocol').textContent,
+      server: document.getElementById('serverRow').hidden ? null : document.getElementById('server').textContent,
+      status: document.getElementById('status').hidden ? null : document.getElementById('status').textContent,
+      source: document.getElementById('source').textContent,
+    }));
+    const v = await read();
+    assert(v.host === '127.0.0.1' && v.ip === '127.0.0.1', JSON.stringify(v));
+    assert(v.provider === 'Cloudflare', 'provider ' + v.provider);
+    assert(v.protocol === 'http/1.1', 'protocol ' + v.protocol);
+    assert(v.server === 'cloudflare' && v.status === 'HTTP 200', JSON.stringify(v));
+    // toggle hide -> badge disappears in the page, list updated
+    await pop.click('#hide');
+    await sleep(500);
+    assert(!(await page.$(HOST_SEL)), 'badge still shown after popup hide toggle');
+    const list = await sw.evaluate(() => chrome.storage.sync.get('disabledHosts').then((o) => o.disabledHosts));
+    assert(list.includes('127.0.0.1'), 'list ' + JSON.stringify(list));
+    await pop.click('#hide');
+    await sleep(500);
+    assert(await page.$(HOST_SEL), 'badge did not come back');
+    await pop.close();
+    return `${v.ip} · ${v.provider} · ${v.protocol} · ${v.status}`;
+  });
+  await check('Popup on a non-web tab shows the empty state', async () => {
+    const blank = await ctx.newPage();
+    await blank.goto('chrome://version/');
+    // chrome:// is outside <all_urls>, so the extension sees no URL for that tab.
+    const tabId = await sw.evaluate(async () => (await chrome.tabs.query({})).find((t) => !t.url).id);
+    const pop = await ctx.newPage();
+    await pop.goto(`chrome-extension://${extId}/popup.html?tab=${tabId}`);
+    await pop.waitForSelector('#empty:not([hidden])', { timeout: 5000 });
+    await pop.close(); await blank.close();
+    return 'ok';
   });
 
   // 11. Non-web pages: nothing injected, nothing thrown.

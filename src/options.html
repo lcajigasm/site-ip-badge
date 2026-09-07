@@ -26,6 +26,16 @@
     <span data-i18n="optDnsFallback">If the connection IP is unknown, resolve the host via DNS (dns.google)</span>
   </label>
 
+  <label class="row check">
+    <input id="showDetails" type="checkbox">
+    <span data-i18n="optShowDetails">Show the hosting provider / CDN and the HTTP protocol next to the IP</span>
+  </label>
+
+  <label class="col">
+    <span data-i18n="optDisabledHosts">Do not show the badge on these sites (one host per line; "example.com" also covers its subdomains)</span>
+    <textarea id="disabledHosts" rows="4" spellcheck="false" placeholder="example.com&#10;intranet.corp"></textarea>
+  </label>
+
   <p class="hint" data-i18n="optHint">Hover the badge to move it to the other corner. Click copies the IP. Double click hides it until the page is reloaded.</p>
   <p class="saved" id="saved" data-i18n="optSaved" hidden>Saved</p>
 

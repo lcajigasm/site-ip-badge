@@ -33,11 +33,23 @@ const BADGE = '#site-ip-badge-host .badge';
   await new Promise((r) => setTimeout(r, 300));
   await page.screenshot({ path: path.join(OUT, '04-hover-left.png') });
   console.log('saved 04-hover-left.png');
+  // popup for the example.com tab
+  const swp = ctx.serviceWorkers()[0];
+  const exTab = await swp.evaluate(async () => (await chrome.tabs.query({})).find((t) => t.url && t.url.startsWith('https://example.com')).id);
+  const pp = await ctx.newPage();
+  await pp.setViewportSize({ width: 330, height: 300 });
+  await pp.goto(`chrome-extension://${new URL(swp.url()).host}/popup.html?tab=${exTab}`);
+  await pp.waitForSelector('#main:not([hidden])');
+  await pp.click('#ptrBtn').catch(() => {});
+  await new Promise((r) => setTimeout(r, 1200));
+  await pp.screenshot({ path: path.join(OUT, '06-popup.png') });
+  console.log('saved 06-popup.png');
+  await pp.close();
   // options page
   const sw = ctx.serviceWorkers()[0];
   const extId = new URL(sw.url()).host;
   const op = await ctx.newPage();
-  await op.setViewportSize({ width: 520, height: 260 });
+  await op.setViewportSize({ width: 520, height: 420 });
   await op.goto(`chrome-extension://${extId}/options.html`);
   await op.screenshot({ path: path.join(OUT, '05-options.png') });
   console.log('saved 05-options.png');

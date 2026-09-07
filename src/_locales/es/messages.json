@@ -1,19 +1,134 @@
 {
-  "extName": { "message": "Site IP Badge" },
-  "extDescription": { "message": "Muestra la IP del servidor del sitio web actual en la esquina inferior derecha. Pasa el ratón para moverla, clic para copiarla." },
-  "actionTitle": { "message": "Opciones de Site IP Badge" },
-  "optionsTitle": { "message": "Site IP Badge" },
-  "optPosition": { "message": "Esquina" },
-  "optPositionRight": { "message": "Abajo a la derecha" },
-  "optPositionLeft": { "message": "Abajo a la izquierda" },
-  "optFontSize": { "message": "Tamaño de letra (px)" },
-  "optDnsFallback": { "message": "Si no se conoce la IP de la conexión, resolver el dominio por DNS (dns.google)" },
-  "optHint": { "message": "Pasa el ratón por encima para mover la etiqueta a la otra esquina. Clic copia la IP. Doble clic la oculta hasta recargar." },
-  "optSaved": { "message": "Guardado" },
-  "badgeTitleConnection": { "message": "IP del servidor que sirvió $HOST$", "placeholders": { "host": { "content": "$1" } } },
-  "badgeTitleCached": { "message": "IP del servidor que sirvió $HOST$ la última vez (esta carga vino de la caché HTTP)", "placeholders": { "host": { "content": "$1" } } },
-  "badgeTitleDns": { "message": "Respuesta DNS para $HOST$ (la IP de la conexión no estaba disponible)", "placeholders": { "host": { "content": "$1" } } },
-  "badgeTitleLiteral": { "message": "$HOST$ es una IP literal", "placeholders": { "host": { "content": "$1" } } },
-  "badgeTitleUnknown": { "message": "IP de $HOST$ no disponible (página restaurada de caché; activa el fallback DNS en las opciones)", "placeholders": { "host": { "content": "$1" } } },
-  "badgeHint": { "message": "Clic: copiar. Doble clic: ocultar. Ratón encima: mover." }
+  "extName": {
+    "message": "Site IP Badge"
+  },
+  "extDescription": {
+    "message": "Muestra la IP y el proveedor del servidor del sitio web actual en la esquina inferior derecha. Clic para copiar."
+  },
+  "actionTitle": {
+    "message": "Site IP Badge"
+  },
+  "optionsTitle": {
+    "message": "Site IP Badge"
+  },
+  "optPosition": {
+    "message": "Esquina"
+  },
+  "optPositionRight": {
+    "message": "Abajo a la derecha"
+  },
+  "optPositionLeft": {
+    "message": "Abajo a la izquierda"
+  },
+  "optFontSize": {
+    "message": "Tamaño de letra (px)"
+  },
+  "optDnsFallback": {
+    "message": "Si no se conoce la IP de la conexión, resolver el dominio por DNS (dns.google)"
+  },
+  "optHint": {
+    "message": "Pasa el ratón por encima para mover la etiqueta a la otra esquina. Clic copia la IP. Doble clic la oculta hasta recargar."
+  },
+  "optSaved": {
+    "message": "Guardado"
+  },
+  "badgeTitleConnection": {
+    "message": "IP del servidor que sirvió $HOST$",
+    "placeholders": {
+      "host": {
+        "content": "$1"
+      }
+    }
+  },
+  "badgeTitleCached": {
+    "message": "IP del servidor que sirvió $HOST$ la última vez (esta carga vino de la caché HTTP)",
+    "placeholders": {
+      "host": {
+        "content": "$1"
+      }
+    }
+  },
+  "badgeTitleDns": {
+    "message": "Respuesta DNS para $HOST$ (la IP de la conexión no estaba disponible)",
+    "placeholders": {
+      "host": {
+        "content": "$1"
+      }
+    }
+  },
+  "badgeTitleLiteral": {
+    "message": "$HOST$ es una IP literal",
+    "placeholders": {
+      "host": {
+        "content": "$1"
+      }
+    }
+  },
+  "badgeTitleUnknown": {
+    "message": "IP de $HOST$ no disponible (página restaurada de caché; activa el fallback DNS en las opciones)",
+    "placeholders": {
+      "host": {
+        "content": "$1"
+      }
+    }
+  },
+  "badgeHint": {
+    "message": "Clic: copiar. Doble clic: ocultar. Ratón encima: mover."
+  },
+  "optShowDetails": {
+    "message": "Mostrar el proveedor / CDN y el protocolo HTTP junto a la IP"
+  },
+  "optDisabledHosts": {
+    "message": "No mostrar la etiqueta en estos sitios (un dominio por línea; \"example.com\" cubre también sus subdominios)"
+  },
+  "popupNoIp": {
+    "message": "Esta página no tiene IP de servidor."
+  },
+  "popupCopy": {
+    "message": "Copiar IP"
+  },
+  "popupCopied": {
+    "message": "Copiado"
+  },
+  "popupServer": {
+    "message": "Servidor"
+  },
+  "popupReverse": {
+    "message": "DNS inverso"
+  },
+  "popupLookup": {
+    "message": "Consultar"
+  },
+  "popupNoPtr": {
+    "message": "sin registro PTR"
+  },
+  "popupOptions": {
+    "message": "Opciones"
+  },
+  "popupHideOn": {
+    "message": "Ocultar la etiqueta en este sitio"
+  },
+  "popupSourceConnection": {
+    "message": "IP de la conexión"
+  },
+  "popupSourceCached": {
+    "message": "IP de la conexión (carga desde caché)"
+  },
+  "popupSourceDns": {
+    "message": "respuesta DNS"
+  },
+  "popupSourceLiteral": {
+    "message": "IP literal"
+  },
+  "popupSourceNone": {
+    "message": "no disponible"
+  },
+  "popupHideOnHost": {
+    "message": "Ocultar la etiqueta en $HOST$",
+    "placeholders": {
+      "host": {
+        "content": "$1"
+      }
+    }
+  }
 }

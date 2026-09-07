@@ -14,7 +14,7 @@
   if (!root || root.namespaceURI !== 'http://www.w3.org/1999/xhtml') return; // XML / SVG docs
 
   const HOST_ID = 'site-ip-badge-host';
-  const DEFAULT_SETTINGS = { position: 'right', fontSize: 12, dnsFallback: true };
+  const DEFAULT_SETTINGS = { position: 'right', fontSize: 12, dnsFallback: true, showDetails: true, disabledHosts: [] };
   const JUMP_COOLDOWN_MS = 1200;
 
   const STYLE = `
@@ -42,6 +42,7 @@
     .badge.dns { border-style: dashed; color: #444; }
     .badge.unknown { color: #888; }
     .badge.copied { background: #dff5e1; border-color: #4caf50; }
+    .details { all: initial; font: inherit; font-size: 0.9em; color: #777; }
     .tag {
       all: initial;
       font: 0.75em/1 system-ui, sans-serif;
@@ -55,6 +56,7 @@
     @media (prefers-color-scheme: dark) {
       .badge { background: rgba(32, 32, 32, 0.95); color: #eee; border-color: #777; }
       .badge.dns { color: #ccc; }
+      .details { color: #aaa; }
       .badge.copied { background: #1f3d24; border-color: #4caf50; }
     }
     @media print { .badge { display: none; } }
@@ -67,6 +69,25 @@
       return key;
     }
   };
+
+  // Protocol used for this document (h2, h3, http/1.1), from Navigation Timing.
+  function pageProtocol() {
+    try {
+      const nav = performance.getEntriesByType('navigation')[0];
+      return (nav && nav.nextHopProtocol) || null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  // "example.com" also matches "www.example.com".
+  function hostDisabled(list, host) {
+    if (!Array.isArray(list)) return false;
+    return list.some((h) => {
+      const d = String(h || '').trim().toLowerCase();
+      return d && (host === d || host.endsWith('.' + d));
+    });
+  }
 
   const isIPv6 = (ip) => ip.includes(':');
   const formatIp = (ip) => (isIPv6(ip) ? '[' + ip + ']' : ip);
@@ -170,6 +191,7 @@
     const ip = info && info.ip ? String(info.ip) : null;
     const source = info ? info.source : 'none';
     const pageHost = (info && info.host) || location.hostname;
+    const protocol = pageProtocol();
 
     if (ip) {
       ipSpan.textContent = formatIp(ip);
@@ -184,6 +206,16 @@
         badge.title = i18n('badgeTitleLiteral', [pageHost]);
       } else {
         badge.title = i18n(info.stale ? 'badgeTitleCached' : 'badgeTitleConnection', [pageHost]);
+      }
+      const parts = [];
+      if (info.provider) parts.push(info.provider);
+      if (protocol) parts.push(protocol);
+      if (parts.length) badge.title += '\n' + parts.join(' · ');
+      if (settings.showDetails !== false && parts.length) {
+        const det = document.createElement('span');
+        det.className = 'details';
+        det.textContent = parts.join(' · ');
+        badge.appendChild(det);
       }
       badge.title += '\n' + i18n('badgeHint');
     } else {
@@ -224,12 +256,41 @@
     (document.body || root).appendChild(host);
   }
 
+  let lastInfo = null;
+  let lastSettings = null;
+  const pageHostName = location.hostname.toLowerCase();
+
   Promise.all([getSettings(), getIp()]).then(([settings, info]) => {
-    if (!settings.dnsFallback && !(info && info.ip)) {
-      // User disabled the fallback and nothing is cached: stay out of the way.
-      if (!info || info.source === 'none') render(info, settings);
-      return;
-    }
+    lastInfo = info;
+    lastSettings = settings;
+    if (hostDisabled(settings.disabledHosts, pageHostName)) return;
     render(info, settings);
   });
+
+  // React to "hide on this site" toggled from the popup or the options page.
+  try {
+    chrome.storage.onChanged.addListener((changes, area) => {
+      if (area !== 'sync' || !changes.disabledHosts) return;
+      const list = changes.disabledHosts.newValue || [];
+      const existing = document.getElementById(HOST_ID);
+      if (hostDisabled(list, pageHostName)) {
+        if (existing) existing.remove();
+      } else if (!existing && lastSettings) {
+        render(lastInfo, { ...lastSettings, disabledHosts: list });
+      }
+    });
+  } catch (_) {
+    /* extension context gone */
+  }
+
+  // The popup asks the page for what only the page knows.
+  try {
+    chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
+      if (!message || message.type !== 'GET_PAGE_INFO') return false;
+      sendResponse({ protocol: pageProtocol(), badgeShown: !!document.getElementById(HOST_ID) });
+      return false;
+    });
+  } catch (_) {
+    /* ignore */
+  }
 })();

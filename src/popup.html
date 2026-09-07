@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Site IP Badge</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div id="empty" hidden data-i18n="popupNoIp">No server IP for this page.</div>
+
+  <div id="main" hidden>
+    <div class="host" id="host"></div>
+    <button class="ip" id="ip" data-i18n-title="popupCopy" title="Copy IP"></button>
+    <div class="meta">
+      <span class="pill" id="source"></span>
+      <span class="pill" id="provider" hidden></span>
+      <span class="pill" id="protocol" hidden></span>
+      <span class="pill" id="status" hidden></span>
+    </div>
+    <div class="row" id="serverRow" hidden><span class="k" data-i18n="popupServer">Server</span><span class="v" id="server"></span></div>
+    <div class="row" id="ptrRow"><span class="k" data-i18n="popupReverse">Reverse DNS</span><span class="v"><button id="ptrBtn" class="link" data-i18n="popupLookup">Look up</button><span id="ptr"></span></span></div>
+
+    <label class="toggle"><input type="checkbox" id="hide"><span id="hideLabel" data-i18n="popupHideOn">Hide the badge on this site</span></label>
+  </div>
+
+  <div class="foot">
+    <button id="options" class="link" data-i18n="popupOptions">Options</button>
+    <span id="copied" class="copied" hidden data-i18n="popupCopied">Copied</span>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

@@ -70,6 +70,12 @@ Decisiones:
 
 ---
 
+## 5. Versión 1.1.0 (añadido 2026-09-07)
+
+- [x] Detección de proveedor / CDN a partir de las cabeceras de respuesta y protocolo HTTP (h2/h3) junto a la IP.
+- [x] Popup en el icono: host, IP y origen, proveedor, cabecera `Server`, estado HTTP, protocolo, copiar, DNS inverso bajo demanda, ocultar en este sitio.
+- [x] Lista de sitios donde no mostrar el badge (opciones y popup), con efecto inmediato.
+
 ## Fuera de alcance (por ahora)
 
 - Firefox / Safari (webRequest está disponible en Firefox, migración fácil más adelante).

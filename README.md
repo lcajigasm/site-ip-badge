@@ -13,7 +13,10 @@ It is a from-scratch replacement for the abandoned [Website IP](https://chromewe
 - **Click to copy**, **double click to hide** until the page is reloaded.
 - **Survives service-worker suspension.** IPs are stored per tab and host in `chrome.storage.session`, which outlives the worker and is wiped when the browser closes.
 - **DNS fallback with a visible marker.** When no connection IP is available (a tab restored after a restart, a page served from cache), the extension can resolve the host through DNS over HTTPS (`dns.google`) and tags the badge with `DNS` so you know it is not the connection address. Can be switched off.
-- **Options:** corner (left/right), font size, DNS fallback on/off. Synced through `chrome.storage.sync`.
+- **Who is behind the IP.** The hosting provider or CDN is detected from the response headers (Cloudflare, Fastly, CloudFront, Akamai, Vercel, Netlify, GitHub, Google, Azure Front Door, Fly.io, Heroku, Bunny, Imperva, Shopify and more) and shown next to the IP together with the HTTP protocol used for the page (`h2`, `h3`, `http/1.1`).
+- **Toolbar popup** with the details of the current tab: host, IP and where it came from, provider, `Server` header, HTTP status, protocol, one-click copy, on-demand **reverse DNS** (PTR) lookup, and a switch to hide the badge on that site.
+- **Per-site hide list.** Hosts where the badge should never appear, editable in the options or from the popup, applied immediately. `example.com` also covers its subdomains.
+- **Options:** corner (left/right), font size, DNS fallback on/off, show/hide the provider and protocol details, hidden sites. Synced through `chrome.storage.sync`.
 - **Shadow DOM badge.** Page CSS cannot restyle it and it cannot leak styles into the page. Works on strict-CSP sites such as github.com.
 - **No build step, no dependencies, no telemetry, no remote code.** Plain JavaScript. See [PRIVACY.md](PRIVACY.md).
 - English and Spanish UI.
@@ -48,7 +51,7 @@ Then follow steps 3 to 6 above and pick the `src/` folder.
 | Hover the badge | It jumps to the other bottom corner. It will not jump again for ~1.2 s so you can click it. |
 | Click | Copies the IP to the clipboard. The badge flashes green. |
 | Double click | Hides the badge until the page is reloaded. |
-| Toolbar icon | Opens the options page. |
+| Toolbar icon | Opens the popup with the details of the current tab. |
 
 Badge variants:
 
@@ -58,8 +61,13 @@ Badge variants:
 | `[2a00:1450:4003:810::200e]` | Same, IPv6. |
 | `104.20.21.8` with a `DNS` tag and a dashed border | Connection IP not available; this is a DNS answer for the host. |
 | `IP ?` (grey) | No connection IP and the DNS fallback is disabled. |
+| `140.82.121.4  GitHub · h2` | Provider detected from the response headers and protocol of the page (can be turned off in the options). |
 
-Hovering shows a tooltip with the host and where the address came from.
+Hovering shows a tooltip with the host, where the address came from, the provider and the protocol.
+
+![Toolbar popup](docs/screenshots/store-05-popup.png)
+
+The popup's reverse DNS lookup is the only action that sends the IP to a third party (`dns.google`), and it runs only when you click **Look up**.
 
 ## How it works
 
@@ -67,8 +75,9 @@ Hovering shows a tooltip with the host and where the address came from.
 browser loads a main-frame document
         │
         ▼
-background.js  webRequest.onResponseStarted (types: main_frame)
-        │      details.ip → storage.session["tab:<id>"].hosts[<host>]
+background.js  webRequest.onResponseStarted (types: main_frame, responseHeaders)
+        │      details.ip + provider/CDN detected from the headers + Server header + status
+        │      → storage.session["tab:<id>"].hosts[<host>]
         │      (cached responses carry no ip: previous IP for the host is kept and marked stale)
         ▼
 content.js     runs at document_idle in the top frame only
@@ -78,7 +87,9 @@ background.js  looks up sender.tab.id + host of sender.url
                → connection IP, or IP literal, or DNS-over-HTTPS fallback, or null
         │
         ▼
-content.js     renders the badge inside a Shadow DOM host with position: fixed
+content.js     renders the badge inside a Shadow DOM host with position: fixed,
+               adds the protocol from performance.getEntriesByType("navigation")
+popup.js       asks the worker for the active tab's entry and the page for its protocol
 ```
 
 Entries are removed when the tab closes (`chrome.tabs.onRemoved`). Only the last six hosts per tab are kept, which covers redirects, prerendering and back/forward cache.
@@ -87,7 +98,7 @@ Entries are removed when the tab closes (`chrome.tabs.onRemoved`). Only the last
 
 | Permission | Why |
 |---|---|
-| `webRequest` | Read `details.ip` from `onResponseStarted` for main-frame documents. Observation only; nothing is blocked or modified. |
+| `webRequest` | Read `details.ip` and the response headers (provider detection) from `onResponseStarted` for main-frame documents. Observation only; nothing is blocked or modified. |
 | `<all_urls>` (host permission) | Observe the main-frame response of any site and inject the badge on any http/https page. |
 | `storage` | Keep the IP per tab in `storage.session` and the preferences in `storage.sync`. |
 
@@ -96,9 +107,10 @@ Entries are removed when the tab closes (`chrome.tabs.onRemoved`). Only the last
 ```
 src/                 the extension (load this folder unpacked)
   manifest.json
-  background.js      service worker: webRequest listener, storage.session, DNS fallback, message handler
-  content.js         badge rendering in a Shadow DOM
+  background.js      service worker: webRequest listener, provider detection, storage.session, DNS/PTR lookups
+  content.js         badge rendering in a Shadow DOM, per-site hide list, live updates
   content.css        host-element positioning safety net
+  popup.html/js/css  toolbar popup
   options.html/js/css
   _locales/en, es
   icons/
@@ -127,7 +139,7 @@ npm install        # also downloads Chrome for Testing
 npm test
 ```
 
-It checks IPv4 and IPv6 (`[::1]` loopback server) connections, `history.pushState`, 301 redirects, strict CSP pages, iframes (the badge must show the main frame's IP), hover/click/double-click behaviour, options, a stopped service worker, the DNS fallback, IP-literal hosts, `about:blank` / `chrome://` / `file://` pages, tab cleanup and the absence of errors.
+It checks IPv4 and IPv6 (`[::1]` loopback server) connections, `history.pushState`, 301 redirects, strict CSP pages, iframes (the badge must show the main frame's IP), hover/click/double-click behaviour, options, a stopped service worker, the DNS fallback, IP-literal hosts, provider detection, reverse DNS, the per-site hide list, the popup, `about:blank` / `chrome://` / `file://` pages, tab cleanup and the absence of errors.
 
 Useful variables:
 
@@ -144,7 +156,7 @@ Note: branded Google Chrome 137 and later ignores `--load-extension`, so the sui
 
 ```sh
 scripts/zip.sh
-# → dist/site-ip-badge-1.0.0.zip
+# → dist/site-ip-badge-1.1.0.zip
 ```
 
 Requires `jq` and `zip`.
@@ -159,7 +171,7 @@ Chrome 112+, and Chromium-based browsers with Manifest V3 support (Brave, Edge, 
 
 ## Privacy
 
-No data collection, no analytics, no remote code. The only optional network request is the DNS fallback to `dns.google`, which receives just the host name of the page and can be disabled in the options. Full text in [PRIVACY.md](PRIVACY.md).
+No data collection, no analytics, no remote code. The only network requests the extension can make are the optional DNS fallback (host name → `dns.google`, can be disabled) and the reverse DNS lookup in the popup (IP → `dns.google`, only when you click). Full text in [PRIVACY.md](PRIVACY.md).
 
 ## License
 
