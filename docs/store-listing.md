@@ -22,7 +22,7 @@ What it does
 • Hover the badge and it jumps to the other corner so it never hides what you are reading.
 • Click the badge to copy the IP. Double click to hide it until the page is reloaded.
 • If the connection IP is not available (a tab restored after restarting the browser, a page served from cache), it can resolve the host name through DNS over HTTPS and shows a "DNS" tag so you know the difference. This fallback can be switched off.
-• Shows who is behind the IP: the hosting provider or CDN (Cloudflare, Fastly, CloudFront, Akamai, Vercel, Netlify, GitHub, Google and more) detected from the response headers, plus the HTTP protocol (h2, h3).
+• Shows who is behind the IP: the hosting provider or CDN, detected locally from the response headers, plus the HTTP protocol used for the page (h2, h3).
 • Toolbar popup with the details of the current tab: host, IP and its source, provider, Server header, HTTP status, protocol, copy, on-demand reverse DNS, and a switch to hide the badge on that site.
 • Options: corner (left/right), font size, DNS fallback on/off, details on/off, list of sites where the badge is hidden.
 
@@ -30,7 +30,7 @@ What it does not do
 • No analytics, no telemetry, no accounts, no remote code.
 • It never sends the pages you visit anywhere. The only network requests are the optional DNS fallback (host name to dns.google) and the reverse DNS lookup in the popup (IP to dns.google, only when you click).
 
-Built as a Manifest V3 replacement for the discontinued "Website IP" extension. Open source.
+Manifest V3. Open source.
 
 ## Privacy tab
 

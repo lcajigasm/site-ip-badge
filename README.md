@@ -13,7 +13,7 @@ It is a from-scratch replacement for the abandoned [Website IP](https://chromewe
 - **Click to copy**, **double click to hide** until the page is reloaded.
 - **Survives service-worker suspension.** IPs are stored per tab and host in `chrome.storage.session`, which outlives the worker and is wiped when the browser closes.
 - **DNS fallback with a visible marker.** When no connection IP is available (a tab restored after a restart, a page served from cache), the extension can resolve the host through DNS over HTTPS (`dns.google`) and tags the badge with `DNS` so you know it is not the connection address. Can be switched off.
-- **Who is behind the IP.** The hosting provider or CDN is detected from the response headers (Cloudflare, Fastly, CloudFront, Akamai, Vercel, Netlify, GitHub, Google, Azure Front Door, Fly.io, Heroku, Bunny, Imperva, Shopify and more) and shown next to the IP together with the HTTP protocol used for the page (`h2`, `h3`, `http/1.1`).
+- **Who is behind the IP.** The hosting provider or CDN is detected from the response headers (around twenty common providers are recognised) and shown next to the IP together with the HTTP protocol used for the page (`h2`, `h3`, `http/1.1`).
 - **Toolbar popup** with the details of the current tab: host, IP and where it came from, provider, `Server` header, HTTP status, protocol, one-click copy, on-demand **reverse DNS** (PTR) lookup, and a switch to hide the badge on that site.
 - **Per-site hide list.** Hosts where the badge should never appear, editable in the options or from the popup, applied immediately. `example.com` also covers its subdomains.
 - **Options:** corner (left/right), font size, DNS fallback on/off, show/hide the provider and protocol details, hidden sites. Synced through `chrome.storage.sync`.
@@ -23,7 +23,13 @@ It is a from-scratch replacement for the abandoned [Website IP](https://chromewe
 
 ## Installation
 
-The extension is not on the Chrome Web Store yet. Until it is, install it from a release:
+**[Get it from the Chrome Web Store](https://chromewebstore.google.com/detail/site-ip-badge/kndbnfngfdigieedcndnfgbemkdnfkeb).**
+
+Chromium-based browsers that support the Web Store (Brave, Edge, Vivaldi, Opera) can install it from the same link.
+
+### From a release (unpacked)
+
+To run a specific release, or on a browser that cannot reach the Web Store:
 
 1. Download `site-ip-badge-<version>.zip` from the [latest release](https://github.com/lcajigasm/site-ip-badge/releases/latest).
 2. Unzip it somewhere permanent (Chrome loads the extension from that folder every time it starts, so do not delete it afterwards). You should end up with a folder that contains `manifest.json` directly.
@@ -32,7 +38,7 @@ The extension is not on the Chrome Web Store yet. Until it is, install it from a
 5. Click **Load unpacked** and pick the folder from step 2.
 6. Open any `https://` page. The IP appears in the bottom-right corner.
 
-Chrome shows a "Disable developer mode extensions" prompt on startup while an unpacked extension is installed. That is expected for extensions installed outside the Web Store; dismiss it or install from the store once it is published.
+Chrome shows a "Disable developer mode extensions" prompt on startup while an unpacked extension is installed. That is expected for extensions installed outside the Web Store; install from the store instead if that bothers you.
 
 To update, download the new zip, unzip it over the same folder and press the reload icon on the extension's card in `chrome://extensions`.
 
@@ -164,7 +170,7 @@ Requires `jq` and `zip`.
 
 ### Publishing to the Chrome Web Store
 
-Follow [PUBLISH.md](PUBLISH.md). The listing text, single-purpose statement and permission justifications are ready in [docs/store-listing.md](docs/store-listing.md).
+Published: [chromewebstore.google.com/detail/site-ip-badge/kndbnfngfdigieedcndnfgbemkdnfkeb](https://chromewebstore.google.com/detail/site-ip-badge/kndbnfngfdigieedcndnfgbemkdnfkeb). For a new submission, follow [PUBLISH.md](PUBLISH.md); the listing text, single-purpose statement and permission justifications are in [docs/store-listing.md](docs/store-listing.md).
 
 ```sh
 scripts/zip.sh                 # the package
