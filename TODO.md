@@ -66,7 +66,9 @@ Decisiones:
 
 - [x] Repositorio público y release v1.0.0 con el zip e instrucciones de instalación: https://github.com/lcajigasm/site-ip-badge/releases/tag/v1.0.0
 - [x] Kit de envío generado con `scripts/store-kit.py` → `dist/store-submission-1.1.0.zip` (paquete, icono, capturas, promo tiles, `LISTING.txt` campo a campo).
-- [ ] Seguir `PUBLISH.md`. Paquete listo en `dist/site-ip-badge-1.1.0.zip`; textos, justificación de permisos y capturas en `docs/store-listing.md`, `docs/screenshots/`, `docs/store/`. Falta: cuenta de desarrollador (tasa 5 USD, 2FA), subir y enviar a revisión.
+- [x] Cuenta de desarrollador creada, paquete 1.1.0 subido y enviado (item `kndbnfngfdigieedcndnfgbemkdnfkeb`).
+- [x] 2026-09-08 — **Rechazo "Yellow Argon"** (keyword spam): la lista de marcas "Cloudflare, Fastly, CloudFront, Akamai, Vercel, Netlify, GitHub, Google" en la descripción. Corregido: descripción sin marcas ni mención a "Website IP", promo tile sin "Cloudflare". Kit regenerado en `dist/store-submission-1.1.0-r2/` (`LISTING.txt`). El paquete no cambia.
+- [x] Reenviado y aprobado. **Publicada**: https://chromewebstore.google.com/detail/site-ip-badge/kndbnfngfdigieedcndnfgbemkdnfkeb
 - [ ] Tras publicar: escribir reseña/aviso en la ficha de la extensión original si hay canal de contacto (`websiteip865@gmail.com`) para redirigir usuarios; opcional.
 
 ---

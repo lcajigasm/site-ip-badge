@@ -53,7 +53,7 @@ def tile(w, h, out, icon_size, title_size, sub_size):
     d.text((x, int(h * 0.18) + title_size + 12), 'Server IP · provider · protocol\nof the page you are on', fill=(200, 215, 240), font=font(sub_size))
     # fake badge in the band
     bf = font(int(sub_size * 0.95))
-    label = '104.20.23.154  Cloudflare · h2'
+    label = '104.20.23.154  CDN · h2'
     tw = d.textlength(label, font=bf)
     bx, by = w - int(tw) - pad - 24, int(h * 0.72) + (h - int(h * 0.72) - sub_size - 14) // 2
     d.rounded_rectangle((bx, by, bx + int(tw) + 24, by + sub_size + 14), radius=6, fill=(245, 245, 245), outline=(138, 138, 138))
@@ -96,7 +96,7 @@ Detailed description:
 
 What it does
 • Shows the real IP of the connection (IPv4 or IPv6), taken from the response the browser received. It reflects CDNs, load balancers and redirects, not just what DNS says.
-• Shows who is behind the IP: the hosting provider or CDN (Cloudflare, Fastly, CloudFront, Akamai, Vercel, Netlify, GitHub, Google and more) detected from the response headers, plus the HTTP protocol (h2, h3).
+• Shows who is behind the IP: the hosting provider or CDN, detected locally from the response headers, plus the HTTP protocol used for the page (h2, h3).
 • Hover the badge and it jumps to the other corner so it never hides what you are reading.
 • Click the badge to copy the IP. Double click to hide it until the page is reloaded.
 • Toolbar popup with the details of the current tab: host, IP and its source, provider, Server header, HTTP status, protocol, copy, on-demand reverse DNS, and a switch to hide the badge on that site.
@@ -107,7 +107,7 @@ What it does not do
 • No analytics, no telemetry, no accounts, no remote code.
 • It never sends the pages you visit anywhere. The only network requests are the optional DNS fallback (host name to dns.google) and the reverse DNS lookup in the popup (IP to dns.google, only when you click).
 
-Built as a Manifest V3 replacement for the discontinued "Website IP" extension. Open source: {REPO}
+Manifest V3. Open source: {REPO}
 
 Official URL / Homepage:
 {REPO}
